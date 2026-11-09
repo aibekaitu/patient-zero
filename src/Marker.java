@@ -76,7 +76,102 @@ public class Marker {
      * Example: a = "ACGTAC", b = "TTACGT", k = 4: the words of a are ACGT, CGTA, GTAC; only ACGT is in b, so the answer is 1.
      */
     public static int sharedWords(String a, String b, int k) {
-        // TODO Mission 4
-        return -1;
+        if (k <= 0 || a.length() < k || b.length() < k) {
+            return 0;
+        }
+
+        final long mod = 1_000_000_007L;
+        final long base = 911_382_323L;
+
+        long power = 1;
+
+        for (int i = 1; i < k; i++) {
+            power = (power * base) % mod;
+        }
+
+        Map<Long, List<Integer>> windows = new HashMap<>();
+
+        long hashB = 0;
+
+        for (int i = 0; i < k; i++) {
+            hashB = (hashB * base + dnaDigit(b.charAt(i))) % mod;
+        }
+
+        windows.computeIfAbsent(
+                hashB, h -> new ArrayList<>()
+        ).add(0);
+
+        for (int i = k; i < b.length(); i++) {
+            hashB = nextHash(
+                    hashB, b.charAt(i - k), b.charAt(i),
+                    power, base, mod
+            );
+
+            windows.computeIfAbsent(
+                    hashB, h -> new ArrayList<>()
+            ).add(i - k + 1);
+        }
+
+        long hashA = 0;
+
+        for (int i = 0; i < k; i++) {
+            hashA = (hashA * base + dnaDigit(a.charAt(i))) % mod;
+        }
+
+        int shared = 0;
+
+        for (int start = 0; start + k <= a.length(); start++) {
+            if (start > 0) {
+                hashA = nextHash(
+                        hashA,
+                        a.charAt(start - 1),
+                        a.charAt(start + k - 1),
+                        power, base, mod
+                );
+            }
+
+            List<Integer> candidates = windows.get(hashA);
+
+            if (candidates == null) continue;
+
+            for (int position : candidates) {
+                if (sameWindow(a, start, b, position, k)) {
+                    shared++;
+                    break;
+                }
+            }
+        }
+
+        return shared;
+    }
+    private static int dnaDigit(char c) {
+        return switch (c) {
+            case 'A' -> 1;
+            case 'C' -> 2;
+            case 'G' -> 3;
+            case 'T' -> 4;
+            default -> throw new IllegalArgumentException();
+        };
+    }
+
+    private static long nextHash(
+            long current, char outgoing, char incoming,
+            long power, long base, long mod
+    ) {
+        long withoutFirst =
+                (current - dnaDigit(outgoing) * power % mod + mod) % mod;
+
+        return (withoutFirst * base + dnaDigit(incoming)) % mod;
+    }
+
+    private static boolean sameWindow(
+            String a, int ai, String b, int bi, int k
+    ) {
+        for (int i = 0; i < k; i++) {
+            if (a.charAt(ai + i) != b.charAt(bi + i)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
