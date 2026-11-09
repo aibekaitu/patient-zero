@@ -49,11 +49,7 @@ We must compare characters because different strings can have the same hash valu
 Each person has two states: tested and not tested. If a person is not tested, all their children must be tested; otherwise we choose the cheaper state for each child. A greedy approach may fail because it does not consider testing costs and the entire tree structure.
 ## AI use
 
-**AI use:** I used ChatGPT to understand algorithms, get code examples, and check and fix errors.
-
-## Timing (Mission 7)
-
-Milliseconds, average of 3 runs, from `java -cp out Bench`.
+**AI use:** ## I used ChatGPT to understand the assignment and check errors.
 
 ## Timing (Mission 7)
 
